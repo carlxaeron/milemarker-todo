@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Api\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\Todo;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -49,7 +50,7 @@ class TodoController extends Controller
         $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
-            'completed' => 'sometimes|boolean'
+            'completed' => 'boolean'
         ]);
 
         $todo = Todo::findOrFail($id);

@@ -12,7 +12,7 @@ class TodoTest extends TestCase
 
     public function test_can_get_all_todos()
     {
-        $response = $this->get('/todos');
+        $response = $this->get('/api/todos');
         $response->assertStatus(200);
     }
 
@@ -24,7 +24,7 @@ class TodoTest extends TestCase
             'completed' => false
         ];
 
-        $response = $this->post('/todos', $todoData);
+        $response = $this->post('/api/todos', $todoData);
         $response->assertStatus(201);
         $response->assertJsonFragment(['title' => 'Test Todo']);
     }
@@ -42,7 +42,7 @@ class TodoTest extends TestCase
             'completed' => true
         ];
 
-        $response = $this->put("/todos/{$todo->id}", $updateData);
+        $response = $this->put("/api/todos/{$todo->id}", $updateData);
         $response->assertStatus(200);
         $response->assertJsonFragment(['title' => 'Updated Title', 'completed' => true]);
     }
@@ -55,7 +55,7 @@ class TodoTest extends TestCase
             'completed' => false
         ]);
 
-        $response = $this->delete("/todos/{$todo->id}");
+        $response = $this->delete("/api/todos/{$todo->id}");
         $response->assertStatus(204);
     }
 }
