@@ -1,5 +1,3 @@
-<script setup></script>
-
 <template>
   <div id="app">
     <div class="container">
@@ -108,7 +106,7 @@ export default {
   methods: {
     async fetchTodos() {
       try {
-        const response = await axios.get('http://localhost:8000/todos')
+        const response = await axios.get('http://localhost:8000/api/todos')
         this.todos = response.data
       } catch (error) {
         console.error('Error fetching todos:', error)
@@ -119,7 +117,7 @@ export default {
       if (!this.newTodo.title.trim()) return
       
       try {
-        const response = await axios.post('http://localhost:8000/todos', this.newTodo)
+        const response = await axios.post('http://localhost:8000/api/todos', this.newTodo)
         this.todos.unshift(response.data)
         this.newTodo = { title: '', description: '', completed: false }
       } catch (error) {
@@ -129,7 +127,7 @@ export default {
     
     async toggleTodo(todo) {
       try {
-        const response = await axios.put(`http://localhost:8000/todos/${todo.id}`, {
+        const response = await axios.put(`http://localhost:8000/api/todos/${todo.id}`, {
           completed: !todo.completed
         })
         const index = this.todos.findIndex(t => t.id === todo.id)
@@ -148,7 +146,7 @@ export default {
     
     async saveEdit() {
       try {
-        const response = await axios.put(`http://localhost:8000/todos/${this.editingTodo.id}`, this.editingTodo)
+        const response = await axios.put(`http://localhost:8000/api/todos/${this.editingTodo.id}`, this.editingTodo)
         const index = this.todos.findIndex(t => t.id === this.editingTodo.id)
         if (index !== -1) {
           this.todos[index] = response.data
@@ -168,7 +166,7 @@ export default {
       if (!confirm('Are you sure you want to delete this todo?')) return
       
       try {
-        await axios.delete(`http://localhost:8000/todos/${id}`)
+        await axios.delete(`http://localhost:8000/api/todos/${id}`)
         this.todos = this.todos.filter(t => t.id !== id)
       } catch (error) {
         console.error('Error deleting todo:', error)
