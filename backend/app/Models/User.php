@@ -6,12 +6,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Traits\HasGeneralRelationships;
+use Carlxaeron\General\Traits\HasGeneralMaps;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasGeneralRelationships;
+    use HasFactory, Notifiable, HasGeneralMaps;
 
     /**
      * The attributes that are mass assignable.
@@ -48,10 +48,27 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the todos for the user.
+     * Get the todos for the user through general maps.
+     * This method returns a collection, not a relationship instance.
      */
-    public function todos()
+    public function getTodos()
     {
-        return $this->hasMany(Todo::class);
+        return $this->getRelatedModels(\App\Models\Todo::class, 'todo_owner');
+    }
+
+    /**
+     * Associate a todo with this user.
+     */
+    public function addTodo(\App\Models\Todo $todo, ?array $metadata = null)
+    {
+        return $this->addRelatedModel($todo, 'todo_owner', null, $metadata ?? []);
+    }
+
+    /**
+     * Remove a todo association from this user.
+     */
+    public function removeTodo(\App\Models\Todo $todo)
+    {
+        return $this->removeRelatedModel($todo, 'todo_owner');
     }
 }

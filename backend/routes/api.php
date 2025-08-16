@@ -12,6 +12,10 @@ Route::get('/user', function (Request $request) {
 // API Routes for Todos
 Route::apiResource('todos', TodoController::class);
 
+// Additional todo routes for user management
+Route::post('/todos/{id}/assign-user', [TodoController::class, 'assignUser']);
+Route::delete('/todos/{id}/remove-user', [TodoController::class, 'removeUser']);
+
 // API Routes for Users
 Route::apiResource('users', UserController::class);
 Route::get('/users/{id}/todos', [UserController::class, 'todos']);

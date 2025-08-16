@@ -2,43 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Carlxaeron\General\Models\GeneralMap as BaseGeneralMap;
 
-class GeneralMap extends Model
+class GeneralMap extends BaseGeneralMap
 {
-    protected $table = 'general_maps';
-
-    protected $fillable = [
-        'mappable_type',
-        'mappable_id',
-        'related_type',
-        'related_id',
-        'relationship_type',
-        'relationship_key',
-        'metadata',
-        'sort_order',
-        'is_active'
-    ];
-
-    protected $casts = [
-        'metadata' => 'array',
-        'is_active' => 'boolean',
-        'sort_order' => 'integer'
-    ];
-
-    /**
-     * Get the parent mappable model.
-     */
-    public function mappable()
-    {
-        return $this->morphTo();
-    }
-
-    /**
-     * Get the related model.
-     */
-    public function related()
-    {
-        return $this->morphTo('related');
-    }
+    // This model now extends the official package model
+    // All functionality is inherited from the base class
 }

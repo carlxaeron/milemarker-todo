@@ -51,19 +51,16 @@ class UserController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        $user = User::with(['todos', 'generalRelationships'])->findOrFail($id);
-        
-        // Get todos with metadata
-        $todosWithMetadata = $user->getTodosWithMetadata();
+        $user = User::with('generalMaps')->findOrFail($id);
         
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'created_at' => $user->created_at,
-            'todos_count' => $user->todos->count(),
-            'todos_with_metadata' => $todosWithMetadata,
-            'relationships' => $user->generalRelationships
+            'todos_count' => $user->getTodos()->count(),
+            'todos' => $user->getTodos(),
+            'relationships' => $user->generalMaps
         ]);
     }
 
@@ -112,7 +109,7 @@ class UserController extends Controller
     public function todos(string $id): JsonResponse
     {
         $user = User::findOrFail($id);
-        $todosWithMetadata = $user->getTodosWithMetadata();
+        $todos = $user->getTodos();
         
         return response()->json([
             'user' => [
@@ -120,7 +117,7 @@ class UserController extends Controller
                 'name' => $user->name,
                 'email' => $user->email
             ],
-            'todos' => $todosWithMetadata
+            'todos' => $todos
         ]);
     }
 }
