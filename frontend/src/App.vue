@@ -13,7 +13,11 @@
               <span class="user-email">{{ user.email }}</span>
               <span class="user-todos-count">{{ user.todos_count || 0 }} todos</span>
             </div>
-            <button @click="selectUser(user)" class="select-user-btn">Select</button>
+            <button @click="loginAsUser(user)" class="login-as-btn">
+              <span v-if="loading.loggingIn && currentUser && currentUser.id === user.id">Logging in...</span>
+              <span v-else-if="currentUser && currentUser.id === user.id">✓ Logged In</span>
+              <span v-else>Login As</span>
+            </button>
           </div>
         </div>
         
@@ -67,11 +71,18 @@
         </div>
       </div>
       
-      <!-- Selected User Info -->
-      <div v-if="selectedUser" class="selected-user-info">
-        <h3>Selected User: {{ selectedUser.name }}</h3>
-        <p>Email: {{ selectedUser.email }}</p>
-        <p>Total Todos: {{ selectedUser.todos_count || 0 }}</p>
+      <!-- Current User Info -->
+      <div v-if="currentUser" class="current-user-info">
+        <h3>Currently Logged In: {{ currentUser.name }}</h3>
+        <p>Email: {{ currentUser.email }}</p>
+        <p>Total Todos: {{ currentUser.todos_count || 0 }}</p>
+        <button @click="logoutUser" class="logout-btn">Logout</button>
+      </div>
+      
+      <!-- Login Prompt -->
+      <div v-else class="login-prompt">
+        <h3>Please Login</h3>
+        <p>Select a user from the list above to get started</p>
       </div>
       
       <!-- Add Todo Form -->
@@ -99,18 +110,9 @@
           <span v-if="errors.todo.description" class="error-message">{{ errors.todo.description }}</span>
         </div>
         
-        <div class="form-group">
-          <select v-model="newTodo.user_id" class="user-select" v-if="users.length > 0">
-            <option value="">Select User (Optional)</option>
-            <option v-for="user in users" :key="user.id" :value="user.id">
-              {{ user.name }}
-            </option>
-          </select>
-          <span v-if="errors.todo.user_id" class="error-message">{{ errors.todo.user_id }}</span>
-        </div>
-        
-        <button @click="addTodo" class="add-btn" :disabled="loading.addingTodo">
+        <button @click="addTodo" class="add-btn" :disabled="loading.addingTodo || !currentUser">
           <span v-if="loading.addingTodo">Adding...</span>
+          <span v-else-if="!currentUser">Login Required</span>
           <span v-else>Add Todo</span>
         </button>
       </div>
@@ -215,12 +217,11 @@ export default {
         return {
           todos: [],
           users: [],
-          selectedUser: null,
+          currentUser: null, // Currently logged in user
           newTodo: {
             title: '',
             description: '',
-            completed: false,
-            user_id: ''
+            completed: false
           },
           newUser: {
             name: '',
@@ -232,8 +233,7 @@ export default {
             id: null,
             title: '',
             description: '',
-            completed: false,
-            user_id: ''
+            completed: false
           },
           // Error handling
           errors: {
@@ -246,7 +246,8 @@ export default {
             users: false,
             todos: false,
             addingUser: false,
-            addingTodo: false
+            addingTodo: false,
+            loggingIn: false
           }
         }
       },
@@ -357,7 +358,41 @@ export default {
       }
     },
     
+    loginAsUser(user) {
+      this.loading.loggingIn = true
+      this.errors.general = ''
+      
+      // Simulate login process
+      setTimeout(() => {
+        this.currentUser = user
+        this.loading.loggingIn = false
+        
+        // Refresh todos to get updated counts
+        this.fetchTodos()
+        
+        // Clear any previous errors
+        this.errors.general = ''
+      }, 500)
+    },
+    
+    logoutUser() {
+      this.currentUser = null
+      this.errors.general = ''
+      
+      // Clear todo form
+      this.newTodo = { title: '', description: '', completed: false }
+      
+      // Clear todo errors
+      this.errors.todo = {}
+    },
+    
     async addTodo() {
+      // Check if user is logged in
+      if (!this.currentUser) {
+        this.errors.general = 'Please login first to add todos'
+        return
+      }
+      
       // Clear previous errors
       this.errors.todo = {}
       this.errors.general = ''
@@ -371,9 +406,15 @@ export default {
       this.loading.addingTodo = true
       
       try {
-        const response = await axios.post('http://localhost:8000/api/todos', this.newTodo)
+        // Add current user ID to the todo
+        const todoData = {
+          ...this.newTodo,
+          user_id: this.currentUser.id
+        }
+        
+        const response = await axios.post('http://localhost:8000/api/todos', todoData)
         this.todos.unshift(response.data)
-        this.newTodo = { title: '', description: '', completed: false, user_id: '' }
+        this.newTodo = { title: '', description: '', completed: false }
         this.fetchUsers() // Refresh users to get updated todo counts
       } catch (error) {
         console.error('Error adding todo:', error)
@@ -482,6 +523,34 @@ h1 {
   margin-bottom: 15px;
 }
 
+.todo-assignment-info {
+  background: #e8f5e8;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  border-left: 3px solid #4caf50;
+}
+
+.todo-assignment-info p {
+  color: #2e7d32;
+  margin: 0;
+  font-size: 14px;
+}
+
+.todo-assignment-warning {
+  background: #fff3e0;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  border-left: 3px solid #ff9800;
+}
+
+.todo-assignment-warning p {
+  color: #e65100;
+  margin: 0;
+  font-size: 14px;
+}
+
 .todo-input, .todo-textarea {
   width: 100%;
   padding: 12px;
@@ -495,6 +564,12 @@ h1 {
 .todo-input:focus, .todo-textarea:focus {
   outline: none;
   border-color: #667eea;
+}
+
+.todo-input:disabled, .todo-textarea:disabled {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
 }
 
 .todo-textarea {
@@ -576,7 +651,7 @@ h1 {
   font-weight: bold;
 }
 
-.select-user-btn {
+.login-as-btn {
   background: #007bff;
   color: white;
   border: none;
@@ -584,11 +659,18 @@ h1 {
   border-radius: 5px;
   cursor: pointer;
   font-size: 14px;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  min-width: 100px;
 }
 
-.select-user-btn:hover {
+.login-as-btn:hover:not(:disabled) {
   background: #0056b3;
+}
+
+.login-as-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .add-user-form {
@@ -672,22 +754,60 @@ h1 {
   opacity: 0.6;
 }
 
-.selected-user-info {
-  background: #e3f2fd;
+.current-user-info {
+  background: #e8f5e8;
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
-  border-left: 4px solid #2196f3;
+  border-left: 4px solid #4caf50;
+  position: relative;
 }
 
-.selected-user-info h3 {
-  color: #1976d2;
+.current-user-info h3 {
+  color: #2e7d32;
   margin-bottom: 10px;
 }
 
-.selected-user-info p {
+.current-user-info p {
   color: #424242;
   margin-bottom: 5px;
+}
+
+.logout-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: #d32f2f;
+}
+
+.login-prompt {
+  background: #fff3e0;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #ff9800;
+  text-align: center;
+}
+
+.login-prompt h3 {
+  color: #e65100;
+  margin-bottom: 10px;
+}
+
+.login-prompt p {
+  color: #424242;
+  margin-bottom: 0;
 }
 
 .user-select {
