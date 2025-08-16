@@ -24,7 +24,7 @@ describe('App.vue - Basic Tests', () => {
   })
 
   it('renders the todo app title', () => {
-    expect(wrapper.find('h1').text()).toBe('Todo App')
+    expect(wrapper.find('h1').text()).toBe('Todo App with User Relationships')
   })
 
   it('renders the add todo form', () => {
@@ -64,7 +64,7 @@ describe('App.vue - Basic Tests', () => {
 
   it('renders add button with correct text', () => {
     const addButton = wrapper.find('.add-btn')
-    expect(addButton.text()).toBe('Add Todo')
+    expect(addButton.text()).toBe('Login Required')
   })
 
   it('has correct CSS classes for styling', () => {

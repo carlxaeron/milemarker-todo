@@ -11,6 +11,33 @@ export const createMockTodo = (overrides = {}) => ({
   completed: false,
   created_at: '2025-08-15T00:00:00Z',
   updated_at: '2025-08-15T00:00:00Z',
+  owner: {
+    id: 1,
+    name: 'Test User',
+    email: 'test@example.com',
+    email_verified_at: null,
+    created_at: '2025-08-15T00:00:00Z',
+    updated_at: '2025-08-15T00:00:00Z'
+  },
+  general_maps: [
+    {
+      id: 1,
+      mappable_type: 'App\\Models\\User',
+      mappable_id: 1,
+      related_type: 'App\\Models\\Todo',
+      related_id: 1,
+      relationship_type: 'todo_owner',
+      relationship_key: null,
+      metadata: {
+        assigned_at: '2025-08-15T00:00:00Z',
+        assigned_by: 'api'
+      },
+      sort_order: 0,
+      is_active: true,
+      created_at: '2025-08-15T00:00:00Z',
+      updated_at: '2025-08-15T00:00:00Z'
+    }
+  ],
   ...overrides
 })
 
@@ -26,6 +53,21 @@ export const createMockTodos = (count = 1, overrides = {}) => {
     })
   )
 }
+
+/**
+ * Create a mock todo without owner (for testing edge cases)
+ */
+export const createMockTodoWithoutOwner = (overrides = {}) => ({
+  id: 1,
+  title: 'Test Todo',
+  description: 'Test Description',
+  completed: false,
+  created_at: '2025-08-15T00:00:00Z',
+  updated_at: '2025-08-15T00:00:00Z',
+  owner: null,
+  general_maps: [],
+  ...overrides
+})
 
 /**
  * Mock axios responses for testing

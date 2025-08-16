@@ -33,7 +33,7 @@ describe('App.vue', () => {
   describe('Component Rendering', () => {
     it('renders the todo app title', () => {
       wrapper = mount(App)
-      expect(wrapper.find('h1').text()).toBe('Todo App')
+      expect(wrapper.find('h1').text()).toBe('Todo App with User Relationships')
     })
 
     it('renders the add todo form', () => {
@@ -53,7 +53,18 @@ describe('App.vue', () => {
   describe('Fetching Todos', () => {
     it('fetches todos on component mount', async () => {
       const mockTodos = [
-        { id: 1, title: 'Test Todo', description: 'Test Description', completed: false }
+        { 
+          id: 1, 
+          title: 'Test Todo', 
+          description: 'Test Description', 
+          completed: false,
+          owner: {
+            id: 1,
+            name: 'Test User',
+            email: 'test@example.com'
+          },
+          general_maps: []
+        }
       ]
       
       mockAxios.get.mockResolvedValue({ data: mockTodos })
@@ -87,7 +98,18 @@ describe('App.vue', () => {
         completed: false
       }
       
-      const createdTodo = { ...newTodo, id: 1, created_at: '2025-08-15T00:00:00Z', updated_at: '2025-08-15T00:00:00Z' }
+      const createdTodo = { 
+        ...newTodo, 
+        id: 1, 
+        created_at: '2025-08-15T00:00:00Z', 
+        updated_at: '2025-08-15T00:00:00Z',
+        owner: {
+          id: 1,
+          name: 'Test User',
+          email: 'test@example.com'
+        },
+        general_maps: []
+      }
       
       mockAxios.post.mockResolvedValue({ data: createdTodo })
       
@@ -96,8 +118,13 @@ describe('App.vue', () => {
       // Wait for component to mount and fetchTodos to complete
       await wrapper.vm.$nextTick()
       
-      // Set form data
+      // Set up currentUser so addTodo can work
       await wrapper.setData({
+        currentUser: {
+          id: 1,
+          name: 'Test User',
+          email: 'test@example.com'
+        },
         newTodo: { ...newTodo }
       })
       
@@ -107,7 +134,10 @@ describe('App.vue', () => {
       // Wait for the async operation to complete
       await wrapper.vm.$nextTick()
       
-      expect(mockAxios.post).toHaveBeenCalledWith('http://localhost:8000/api/todos', newTodo)
+      expect(mockAxios.post).toHaveBeenCalledWith('http://localhost:8000/api/todos', {
+        ...newTodo,
+        user_id: 1
+      })
       
       // Check if the todo was added to the array
       const todosArray = wrapper.vm.todos
@@ -144,7 +174,13 @@ describe('App.vue', () => {
       // Wait for component to mount and fetchTodos to complete
       await wrapper.vm.$nextTick()
       
+      // Set up currentUser so addTodo can work
       await wrapper.setData({
+        currentUser: {
+          id: 1,
+          name: 'Test User',
+          email: 'test@example.com'
+        },
         newTodo: { title: 'Test Todo', description: '', completed: false }
       })
       
@@ -157,7 +193,18 @@ describe('App.vue', () => {
 
   describe('Toggling Todo Status', () => {
     it('toggles todo completion status', async () => {
-      const todo = { id: 1, title: 'Test Todo', description: '', completed: false }
+      const todo = { 
+        id: 1, 
+        title: 'Test Todo', 
+        description: '', 
+        completed: false,
+        owner: {
+          id: 1,
+          name: 'Test User',
+          email: 'test@example.com'
+        },
+        general_maps: []
+      }
       const updatedTodo = { ...todo, completed: true }
       
       mockAxios.put.mockResolvedValue({ data: updatedTodo })
@@ -182,7 +229,18 @@ describe('App.vue', () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       mockAxios.put.mockRejectedValue(new Error('Network error'))
       
-      const todo = { id: 1, title: 'Test Todo', description: '', completed: false }
+      const todo = { 
+        id: 1, 
+        title: 'Test Todo', 
+        description: '', 
+        completed: false,
+        owner: {
+          id: 1,
+          name: 'Test User',
+          email: 'test@example.com'
+        },
+        general_maps: []
+      }
       
       wrapper = mount(App)
       
@@ -202,7 +260,18 @@ describe('App.vue', () => {
 
   describe('Editing Todos', () => {
     it('opens edit modal when edit button is clicked', async () => {
-      const todo = { id: 1, title: 'Test Todo', description: 'Test Description', completed: false }
+      const todo = { 
+        id: 1, 
+        title: 'Test Todo', 
+        description: 'Test Description', 
+        completed: false,
+        owner: {
+          id: 1,
+          name: 'Test User',
+          email: 'test@example.com'
+        },
+        general_maps: []
+      }
       
       wrapper = mount(App)
       
@@ -220,7 +289,18 @@ describe('App.vue', () => {
     })
 
     it('saves edited todo successfully', async () => {
-      const todo = { id: 1, title: 'Original Title', description: 'Original Description', completed: false }
+      const todo = { 
+        id: 1, 
+        title: 'Original Title', 
+        description: 'Original Description', 
+        completed: false,
+        owner: {
+          id: 1,
+          name: 'Test User',
+          email: 'test@example.com'
+        },
+        general_maps: []
+      }
       const editedTodo = { ...todo, title: 'Updated Title', description: 'Updated Description' }
       const savedTodo = { ...editedTodo, updated_at: '2025-08-15T00:00:00Z' }
       
@@ -252,7 +332,18 @@ describe('App.vue', () => {
       
       await wrapper.setData({
         showEditModal: true,
-        editingTodo: { id: 1, title: 'Test', description: '', completed: false }
+        editingTodo: { 
+          id: 1, 
+          title: 'Test', 
+          description: '', 
+          completed: false,
+          owner: {
+            id: 1,
+            name: 'Test User',
+            email: 'test@example.com'
+          },
+          general_maps: []
+        }
       })
       
       await wrapper.vm.closeEditModal()
@@ -264,7 +355,18 @@ describe('App.vue', () => {
 
   describe('Deleting Todos', () => {
     it('deletes todo successfully', async () => {
-      const todo = { id: 1, title: 'Test Todo', description: '', completed: false }
+      const todo = { 
+        id: 1, 
+        title: 'Test Todo', 
+        description: '', 
+        completed: false,
+        owner: {
+          id: 1,
+          name: 'Test User',
+          email: 'test@example.com'
+        },
+        general_maps: []
+      }
       
       mockAxios.delete.mockResolvedValue({})
       
@@ -287,7 +389,18 @@ describe('App.vue', () => {
     })
 
     it('does not delete todo when user cancels', async () => {
-      const todo = { id: 1, title: 'Test Todo', description: '', completed: false }
+      const todo = { 
+        id: 1, 
+        title: 'Test Todo', 
+        description: '', 
+        completed: false,
+        owner: {
+          id: 1,
+          name: 'Test User',
+          email: 'test@example.com'
+        },
+        general_maps: []
+      }
       
       // Mock confirm dialog to return false
       global.confirm = vi.fn(() => false)
@@ -314,7 +427,18 @@ describe('App.vue', () => {
       // Mock confirm dialog
       global.confirm = vi.fn(() => true)
       
-      const todo = { id: 1, title: 'Test Todo', description: '', completed: false }
+      const todo = { 
+        id: 1, 
+        title: 'Test Todo', 
+        description: '', 
+        completed: false,
+        owner: {
+          id: 1,
+          name: 'Test User',
+          email: 'test@example.com'
+        },
+        general_maps: []
+      }
       
       wrapper = mount(App)
       
@@ -339,6 +463,15 @@ describe('App.vue', () => {
       // Wait for component to mount and fetchTodos to complete
       await wrapper.vm.$nextTick()
       
+      // Set up currentUser so the form is properly rendered
+      await wrapper.setData({
+        currentUser: {
+          id: 1,
+          name: 'Test User',
+          email: 'test@example.com'
+        }
+      })
+      
       const titleInput = wrapper.find('input[placeholder="Enter todo title"]')
       const descriptionTextarea = wrapper.find('textarea[placeholder="Enter description (optional)"]')
       
@@ -350,7 +483,18 @@ describe('App.vue', () => {
     })
 
     it('shows completed todo styling', async () => {
-      const todo = { id: 1, title: 'Completed Todo', description: '', completed: true }
+      const todo = { 
+        id: 1, 
+        title: 'Completed Todo', 
+        description: '', 
+        completed: true,
+        owner: {
+          id: 1,
+          name: 'Test User',
+          email: 'test@example.com'
+        },
+        general_maps: []
+      }
       
       wrapper = mount(App)
       

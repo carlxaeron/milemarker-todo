@@ -141,28 +141,22 @@
               <p v-if="todo.description" class="todo-description">{{ todo.description }}</p>
               
               <!-- User Ownership Info -->
-              <div v-if="todo.user" class="todo-owner">
+              <div v-if="todo.owner" class="todo-owner">
                 <span class="owner-label">Owner:</span>
-                <span class="owner-name">{{ todo.user.name }}</span>
-                <span class="owner-email">({{ todo.user.email }})</span>
+                <span class="owner-name">{{ todo.owner.name }}</span>
+                <span class="owner-email">({{ todo.owner.email }})</span>
               </div>
               
               <!-- Relationship Metadata -->
-              <div v-if="todo.user_relationships && todo.user_relationships.length > 0" class="todo-relationships">
-                <div v-for="relationship in todo.user_relationships" :key="relationship.id" class="relationship-item">
+              <div v-if="todo.general_maps && todo.general_maps.length > 0" class="todo-relationships">
+                <div v-for="relationship in todo.general_maps" :key="relationship.id" class="relationship-item">
                   <span class="relationship-type">{{ relationship.relationship_type }}</span>
                   <span v-if="relationship.metadata" class="relationship-metadata">
-                    <span v-if="relationship.metadata.priority" class="priority priority-{{ relationship.metadata.priority }}">
-                      {{ relationship.metadata.priority }} priority
+                    <span v-if="relationship.metadata.assigned_at" class="assigned-at">
+                      Assigned: {{ formatDate(relationship.metadata.assigned_at) }}
                     </span>
-                    <span v-if="relationship.metadata.category" class="category">
-                      {{ relationship.metadata.category }}
-                    </span>
-                    <span v-if="relationship.metadata.due_date" class="due-date">
-                      Due: {{ formatDate(relationship.metadata.due_date) }}
-                    </span>
-                    <span v-if="relationship.metadata.estimated_hours" class="estimated-hours">
-                      {{ relationship.metadata.estimated_hours }}h
+                    <span v-if="relationship.metadata.assigned_by" class="assigned-by">
+                      By: {{ relationship.metadata.assigned_by }}
                     </span>
                   </span>
                 </div>
@@ -170,8 +164,9 @@
               
               <!-- Relationship Flags -->
               <div class="relationship-flags">
-                <span v-if="todo.is_favorite" class="flag favorite-flag">⭐ Favorite</span>
-                <span v-if="todo.is_shared" class="flag shared-flag">🔗 Shared</span>
+                <!-- These flags are not currently implemented in the backend -->
+                <!-- <span v-if="todo.is_favorite" class="flag favorite-flag">⭐ Favorite</span> -->
+                <!-- <span v-if="todo.is_shared" class="flag shared-flag">🔗 Shared</span> -->
               </div>
             </div>
           </div>
@@ -416,6 +411,7 @@ export default {
         this.todos.unshift(response.data)
         this.newTodo = { title: '', description: '', completed: false }
         this.fetchUsers() // Refresh users to get updated todo counts
+        this.fetchTodos() // Refresh todos to show the new todo with owner information
       } catch (error) {
         console.error('Error adding todo:', error)
         
@@ -984,6 +980,24 @@ h1 {
 .estimated-hours {
   background: #e0f2f1;
   color: #00695c;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.assigned-at {
+  background: #e0f2f1;
+  color: #00695c;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.assigned-by {
+  background: #e3f2fd;
+  color: #1565c0;
   padding: 2px 6px;
   border-radius: 8px;
   font-size: 11px;
