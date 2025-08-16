@@ -14,7 +14,23 @@ class TodoController extends Controller
      */
     public function index(): JsonResponse
     {
-        $todos = Todo::orderBy('created_at', 'desc')->get();
+        $todos = Todo::with(['user', 'user.generalRelationships'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Enhance todos with relationship metadata
+        $todos->each(function ($todo) {
+            if ($todo->user) {
+                $todo->user_relationships = $todo->user->getRelationships('todo_metadata', null);
+                $todo->is_favorite = $todo->user->getRelationships('favorite')
+                    ->where('related_id', $todo->id)
+                    ->count() > 0;
+                $todo->is_shared = $todo->user->getRelationships('shared')
+                    ->where('related_id', $todo->id)
+                    ->count() > 0;
+            }
+        });
+        
         return response()->json($todos);
     }
 
@@ -26,10 +42,15 @@ class TodoController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'completed' => 'boolean'
+            'completed' => 'boolean',
+            'user_id' => 'nullable|exists:users,id'
         ]);
 
         $todo = Todo::create($request->all());
+        
+        // Load user and relationships for response
+        $todo->load(['user', 'user.generalRelationships']);
+        
         return response()->json($todo, 201);
     }
 
