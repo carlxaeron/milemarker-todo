@@ -9,10 +9,19 @@ class Todo extends Model
     protected $fillable = [
         'title',
         'description',
-        'completed'
+        'completed',
+        'user_id'
     ];
 
     protected $casts = [
         'completed' => 'boolean'
     ];
+
+    /**
+     * Get the user that owns the todo.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "88970a0117c062eed55fa8728fc43833",
+    "content-hash": "daaf411df48bae274d325b5b93310ff1",
     "packages": [
         {
             "name": "brick/math",
@@ -134,6 +134,63 @@
                 }
             ],
             "time": "2024-02-09T16:56:22+00:00"
+        },
+        {
+            "name": "carlxaeron/general",
+            "version": "v1.0.11",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/carlxaeron/general.git",
+                "reference": "d9931fa67a18eee3ed758702467c30a8abf7eedb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/carlxaeron/general/zipball/d9931fa67a18eee3ed758702467c30a8abf7eedb",
+                "reference": "d9931fa67a18eee3ed758702467c30a8abf7eedb",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/database": "^10.0|^11.0|^12.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "laravel/framework": "^10.0|^11.0|^12.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^8.0|^9.0|^10.0",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Carlxaeron\\General\\GeneralServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Carlxaeron\\General\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Carl Louis Manuel",
+                    "email": "carlxaeron09@gmail.com"
+                }
+            ],
+            "description": "A Laravel package providing general mapping and meta functionality for flexible model relationships and metadata management",
+            "support": {
+                "issues": "https://github.com/carlxaeron/general/issues",
+                "source": "https://github.com/carlxaeron/general/tree/v1.0.11"
+            },
+            "time": "2025-08-16T08:44:41+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
